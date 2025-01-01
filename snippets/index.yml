@@ -20,3 +20,5 @@
   module: string_utils.py
 - name: chunk_list
   module: string_utils.py
+- name: atomic_write
+  module: file_utils.py
