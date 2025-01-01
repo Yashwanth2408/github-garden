@@ -24,3 +24,5 @@
   module: file_utils.py
 - name: walk_files
   module: file_utils.py
+- name: hash_file
+  module: file_utils.py

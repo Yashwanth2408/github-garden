@@ -23,3 +23,14 @@ def walk_files(directory, pattern='*', recursive=True):
     """Yield file paths matching pattern under directory."""
     root = Path(directory)
     yield from (root.rglob if recursive else root.glob)(pattern)
+
+import hashlib
+
+
+def hash_file(path, algorithm='sha256', chunk_size=65536):
+    """Return hex digest of file. Streams to handle large files."""
+    h = hashlib.new(algorithm)
+    with open(path, 'rb') as f:
+        while chunk := f.read(chunk_size):
+            h.update(chunk)
+    return h.hexdigest()
