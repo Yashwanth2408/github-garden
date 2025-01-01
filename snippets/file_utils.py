@@ -15,3 +15,11 @@ def atomic_write(path, content, encoding='utf-8'):
     except Exception:
         os.unlink(tmp)
         raise
+
+from pathlib import Path
+
+
+def walk_files(directory, pattern='*', recursive=True):
+    """Yield file paths matching pattern under directory."""
+    root = Path(directory)
+    yield from (root.rglob if recursive else root.glob)(pattern)

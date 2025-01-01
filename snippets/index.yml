@@ -22,3 +22,5 @@
   module: string_utils.py
 - name: atomic_write
   module: file_utils.py
+- name: walk_files
+  module: file_utils.py
