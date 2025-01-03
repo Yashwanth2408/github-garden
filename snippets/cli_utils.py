@@ -26,3 +26,12 @@ def table_print(rows, headers=None, min_width=3):
     print('  '.join('-' * w for w in widths))
     for row in data:
         print(fmt.format(*row))
+
+def confirm_prompt(message, default=False):
+    """Ask user a yes/no question. Returns bool."""
+    hint = '[Y/n]' if default else '[y/N]'
+    try:
+        answer = input(f'{message} {hint}: ').strip().lower()
+    except (KeyboardInterrupt, EOFError):
+        return False
+    return (answer in ('y', 'yes')) if answer else default

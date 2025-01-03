@@ -26,3 +26,5 @@
   module: file_utils.py
 - name: hash_file
   module: file_utils.py
+- name: confirm_prompt
+  module: cli_utils.py
