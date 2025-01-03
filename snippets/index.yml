@@ -28,3 +28,5 @@
   module: file_utils.py
 - name: confirm_prompt
   module: cli_utils.py
+- name: spinner
+  module: cli_utils.py
