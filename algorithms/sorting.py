@@ -66,3 +66,16 @@ def _merge(left, right):
             result.append(right[j]); j += 1
     result.extend(left[i:]); result.extend(right[j:])
     return result
+
+def bubble_sort(arr):
+    """Bubble sort. O(n²) time, O(1) space. Stable."""
+    n = len(arr)
+    for i in range(n):
+        swapped = False
+        for j in range(0, n - i - 1):
+            if arr[j] > arr[j + 1]:
+                arr[j], arr[j + 1] = arr[j + 1], arr[j]
+                swapped = True
+        if not swapped:
+            break
+    return arr
