@@ -72,3 +72,14 @@ def format_bytes(num_bytes, precision=2):
             return f'{num_bytes:.{precision}f} {unit}'
         num_bytes /= 1024
     return f'{num_bytes:.{precision}f} PB'
+
+def dedupe(items, key=None):
+    """Remove duplicates preserving order. key: optional transform fn."""
+    seen = set()
+    result = []
+    for item in items:
+        k = key(item) if key else item
+        if k not in seen:
+            seen.add(k)
+            result.append(item)
+    return result

@@ -32,3 +32,5 @@
   module: cli_utils.py
 - name: format_bytes
   module: string_utils.py
+- name: dedupe
+  module: string_utils.py
