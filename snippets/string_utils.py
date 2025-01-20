@@ -64,3 +64,11 @@ def parse_size(size_str):
 def chunk_list(lst, size):
     """Split a list into chunks of given size."""
     return [lst[i:i + size] for i in range(0, len(lst), size)]
+
+def format_bytes(num_bytes, precision=2):
+    """Format bytes as human-readable. 1572864 -> '1.50 MB'."""
+    for unit in ['B', 'KB', 'MB', 'GB', 'TB']:
+        if abs(num_bytes) < 1024:
+            return f'{num_bytes:.{precision}f} {unit}'
+        num_bytes /= 1024
+    return f'{num_bytes:.{precision}f} PB'

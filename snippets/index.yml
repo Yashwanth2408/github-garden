@@ -30,3 +30,5 @@
   module: cli_utils.py
 - name: spinner
   module: cli_utils.py
+- name: format_bytes
+  module: string_utils.py
