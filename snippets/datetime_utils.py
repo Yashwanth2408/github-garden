@@ -12,3 +12,12 @@ def parse_date_flexible(text):
         except ValueError:
             continue
     return None
+
+def humanize_delta(seconds):
+    """Convert seconds to human-readable. 3661 -> '1h 1m 1s'."""
+    parts = []
+    for unit, size in [('d', 86400), ('h', 3600), ('m', 60), ('s', 1)]:
+        if seconds >= size:
+            parts.append(f'{int(seconds // size)}{unit}')
+            seconds %= size
+    return ' '.join(parts) if parts else '0s'

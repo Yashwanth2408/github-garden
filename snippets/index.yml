@@ -36,3 +36,5 @@
   module: string_utils.py
 - name: parse_date_flexible
   module: datetime_utils.py
+- name: humanize_delta
+  module: datetime_utils.py
