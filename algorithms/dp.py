@@ -32,3 +32,17 @@ def coin_change_ways(coins, amount):
         for i in range(coin, amount + 1):
             dp[i] += dp[i - coin]
     return dp[amount]
+
+def kadane(arr):
+    """Maximum subarray sum (Kadane). O(n) time, O(1) space.
+    Returns (max_sum, start, end)."""
+    best = curr = arr[0]
+    best_s = best_e = tmp_s = 0
+    for i in range(1, len(arr)):
+        if curr + arr[i] < arr[i]:
+            curr = arr[i]; tmp_s = i
+        else:
+            curr += arr[i]
+        if curr > best:
+            best = curr; best_s = tmp_s; best_e = i
+    return best, best_s, best_e
