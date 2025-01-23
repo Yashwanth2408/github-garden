@@ -199,3 +199,41 @@ def lowest_common_ancestor(root, p, q):
     left = lowest_common_ancestor(root.left, p, q)
     right = lowest_common_ancestor(root.right, p, q)
     return root if (left and right) else (left or right)
+
+from collections import deque
+
+
+def serialize(root):
+    """Serialize binary tree to comma string using BFS."""
+    if not root:
+        return '#'
+    parts, queue = [], deque([root])
+    while queue:
+        node = queue.popleft()
+        if node is None:
+            parts.append('#')
+        else:
+            parts.append(str(node.val))
+            queue.append(node.left)
+            queue.append(node.right)
+    return ','.join(parts)
+
+
+def deserialize(data):
+    """Reconstruct binary tree from serialized string."""
+    from types import SimpleNamespace
+    vals = data.split(',')
+    if vals[0] == '#':
+        return None
+    make = lambda v: SimpleNamespace(val=int(v), left=None, right=None)
+    root = make(vals[0])
+    queue, i = deque([root]), 1
+    while queue and i < len(vals):
+        node = queue.popleft()
+        if vals[i] != '#':
+            node.left = make(vals[i]); queue.append(node.left)
+        i += 1
+        if i < len(vals) and vals[i] != '#':
+            node.right = make(vals[i]); queue.append(node.right)
+        i += 1
+    return root
