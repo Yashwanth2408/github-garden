@@ -42,3 +42,22 @@ def safe_read(path, encoding='utf-8', default=None):
             return f.read()
     except (OSError, UnicodeDecodeError):
         return default
+
+import time
+import functools
+
+
+def retry(max_attempts=3, delay=1.0, exceptions=(Exception,)):
+    """Decorator that retries a function on specified exceptions."""
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            for attempt in range(max_attempts):
+                try:
+                    return func(*args, **kwargs)
+                except exceptions:
+                    if attempt == max_attempts - 1:
+                        raise
+                    time.sleep(delay * (2 ** attempt))
+        return wrapper
+    return decorator
