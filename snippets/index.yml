@@ -42,3 +42,5 @@
   module: file_utils.py
 - name: retry
   module: file_utils.py
+- name: deep_merge
+  module: file_utils.py

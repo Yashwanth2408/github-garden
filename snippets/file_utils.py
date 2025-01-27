@@ -61,3 +61,13 @@ def retry(max_attempts=3, delay=1.0, exceptions=(Exception,)):
                     time.sleep(delay * (2 ** attempt))
         return wrapper
     return decorator
+
+def deep_merge(base, override):
+    """Recursively merge override dict into base. Returns new dict."""
+    result = base.copy()
+    for k, v in override.items():
+        if k in result and isinstance(result[k], dict) and isinstance(v, dict):
+            result[k] = deep_merge(result[k], v)
+        else:
+            result[k] = v
+    return result
