@@ -38,3 +38,5 @@
   module: datetime_utils.py
 - name: humanize_delta
   module: datetime_utils.py
+- name: safe_read
+  module: file_utils.py

@@ -34,3 +34,11 @@ def hash_file(path, algorithm='sha256', chunk_size=65536):
         while chunk := f.read(chunk_size):
             h.update(chunk)
     return h.hexdigest()
+
+def safe_read(path, encoding='utf-8', default=None):
+    """Read a file, returning default if missing or unreadable."""
+    try:
+        with open(path, encoding=encoding) as f:
+            return f.read()
+    except (OSError, UnicodeDecodeError):
+        return default
