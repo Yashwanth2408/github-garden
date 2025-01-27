@@ -44,3 +44,5 @@
   module: file_utils.py
 - name: deep_merge
   module: file_utils.py
+- name: week_number
+  module: datetime_utils.py

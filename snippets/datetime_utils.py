@@ -21,3 +21,12 @@ def humanize_delta(seconds):
             parts.append(f'{int(seconds // size)}{unit}')
             seconds %= size
     return ' '.join(parts) if parts else '0s'
+
+from datetime import date
+
+
+def week_number(dt=None):
+    """Return ISO week number for a date (default: today)."""
+    if dt is None:
+        dt = date.today()
+    return dt.isocalendar()[1]
