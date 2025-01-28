@@ -67,3 +67,28 @@ def topological_sort(graph):
     if len(order) != len(in_degree):
         raise ValueError("Graph has a cycle")
     return order
+
+def dfs(graph, start, visited=None):
+    """DFS traversal (recursive). Returns nodes in visit order."""
+    if visited is None:
+        visited = set()
+    visited.add(start)
+    order = [start]
+    for nb in graph.get(start, []):
+        if nb not in visited:
+            order.extend(dfs(graph, nb, visited))
+    return order
+
+
+def dfs_iterative(graph, start):
+    """DFS traversal (iterative). Avoids recursion depth limits."""
+    visited, stack, order = set(), [start], []
+    while stack:
+        node = stack.pop()
+        if node not in visited:
+            visited.add(node)
+            order.append(node)
+            for nb in reversed(graph.get(node, [])):
+                if nb not in visited:
+                    stack.append(nb)
+    return order
