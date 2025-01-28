@@ -92,3 +92,23 @@ def dfs_iterative(graph, start):
                 if nb not in visited:
                     stack.append(nb)
     return order
+
+import heapq
+
+
+def dijkstra(graph, start):
+    """Dijkstra shortest paths from start. O((V+E) log V).
+    graph: {node: [(neighbor, weight)]}
+    Returns dict of {node: shortest_distance}."""
+    dist = {start: 0}
+    pq = [(0, start)]
+    while pq:
+        d, node = heapq.heappop(pq)
+        if d > dist.get(node, float('inf')):
+            continue
+        for nb, w in graph.get(node, []):
+            nd = d + w
+            if nd < dist.get(nb, float('inf')):
+                dist[nb] = nd
+                heapq.heappush(pq, (nd, nb))
+    return dist
