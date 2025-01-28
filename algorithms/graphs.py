@@ -46,3 +46,24 @@ def shortest_path_bfs(graph, start, end):
                 visited.add(nb)
                 queue.append((nb, path + [nb]))
     return None
+
+def topological_sort(graph):
+    """Kahn's algorithm topological sort. O(V + E).
+    Raises ValueError on cycle. graph: {node: [neighbors]}"""
+    from collections import deque
+    in_degree = {n: 0 for n in graph}
+    for node in graph:
+        for nb in graph[node]:
+            in_degree[nb] = in_degree.get(nb, 0) + 1
+    queue = deque(n for n, d in in_degree.items() if d == 0)
+    order = []
+    while queue:
+        node = queue.popleft()
+        order.append(node)
+        for nb in graph.get(node, []):
+            in_degree[nb] -= 1
+            if in_degree[nb] == 0:
+                queue.append(nb)
+    if len(order) != len(in_degree):
+        raise ValueError("Graph has a cycle")
+    return order
