@@ -100,3 +100,20 @@ def _partition(arr, low, high):
             arr[i], arr[j] = arr[j], arr[i]
     arr[i + 1], arr[high] = arr[high], arr[i + 1]
     return i + 1
+
+def shell_sort(arr):
+    """Shell sort with Knuth sequence. O(n^1.5) average, O(1) space."""
+    n = len(arr)
+    gap = 1
+    while gap < n // 3:
+        gap = gap * 3 + 1
+    while gap >= 1:
+        for i in range(gap, n):
+            temp = arr[i]
+            j = i
+            while j >= gap and arr[j - gap] > temp:
+                arr[j] = arr[j - gap]
+                j -= gap
+            arr[j] = temp
+        gap //= 3
+    return arr
