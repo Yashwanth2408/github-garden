@@ -79,3 +79,24 @@ def bubble_sort(arr):
         if not swapped:
             break
     return arr
+
+def quick_sort(arr, low=None, high=None):
+    """Quicksort. O(n log n) average, O(n²) worst, O(log n) space."""
+    if low is None:
+        low, high = 0, len(arr) - 1
+    if low < high:
+        p = _partition(arr, low, high)
+        quick_sort(arr, low, p - 1)
+        quick_sort(arr, p + 1, high)
+    return arr
+
+
+def _partition(arr, low, high):
+    pivot = arr[high]
+    i = low - 1
+    for j in range(low, high):
+        if arr[j] <= pivot:
+            i += 1
+            arr[i], arr[j] = arr[j], arr[i]
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]
+    return i + 1
