@@ -675,3 +675,21 @@ def deserialize(data):
             node.right = make(vals[i]); queue.append(node.right)
         i += 1
     return root
+
+from collections import deque
+
+
+def level_order(root):
+    """Level-order (BFS) traversal. Returns list of levels."""
+    if root is None:
+        return []
+    result, queue = [], deque([root])
+    while queue:
+        level = []
+        for _ in range(len(queue)):
+            node = queue.popleft()
+            level.append(node.val)
+            if node.left: queue.append(node.left)
+            if node.right: queue.append(node.right)
+        result.append(level)
+    return result
