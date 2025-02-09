@@ -40,3 +40,12 @@ def date_range(start, end, inclusive=True):
     while current < end or (inclusive and current == end):
         yield current
         current += timedelta(days=1)
+
+from datetime import date
+
+
+def is_business_day(dt=None):
+    """True if the date is Mon–Fri (no holiday calendar)."""
+    if dt is None:
+        dt = date.today()
+    return dt.weekday() < 5

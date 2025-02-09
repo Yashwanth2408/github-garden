@@ -48,3 +48,5 @@
   module: datetime_utils.py
 - name: date_range
   module: datetime_utils.py
+- name: is_business_day
+  module: datetime_utils.py
