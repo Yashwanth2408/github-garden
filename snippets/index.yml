@@ -46,3 +46,5 @@
   module: file_utils.py
 - name: week_number
   module: datetime_utils.py
+- name: date_range
+  module: datetime_utils.py

@@ -30,3 +30,13 @@ def week_number(dt=None):
     if dt is None:
         dt = date.today()
     return dt.isocalendar()[1]
+
+from datetime import timedelta
+
+
+def date_range(start, end, inclusive=True):
+    """Yield dates from start to end. Both are date objects."""
+    current = start
+    while current < end or (inclusive and current == end):
+        yield current
+        current += timedelta(days=1)
