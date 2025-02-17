@@ -131,3 +131,28 @@ def binary_search(arr, target):
         else:
             high = mid - 1
     return -1
+
+def radix_sort(arr):
+    """Radix sort for non-negative integers. O(d*(n+b)) time, stable."""
+    if not arr:
+        return arr
+    max_val = max(arr)
+    exp = 1
+    while max_val // exp > 0:
+        arr = _counting_sort_digit(arr, exp)
+        exp *= 10
+    return arr
+
+
+def _counting_sort_digit(arr, exp):
+    output = [0] * len(arr)
+    count = [0] * 10
+    for num in arr:
+        count[(num // exp) % 10] += 1
+    for i in range(1, 10):
+        count[i] += count[i - 1]
+    for num in reversed(arr):
+        d = (num // exp) % 10
+        count[d] -= 1
+        output[count[d]] = num
+    return output
