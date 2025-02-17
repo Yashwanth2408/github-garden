@@ -117,3 +117,17 @@ def shell_sort(arr):
             arr[j] = temp
         gap //= 3
     return arr
+
+def binary_search(arr, target):
+    """Binary search in sorted array. O(log n) time, O(1) space.
+    Returns index if found, -1 otherwise."""
+    low, high = 0, len(arr) - 1
+    while low <= high:
+        mid = (low + high) // 2
+        if arr[mid] == target:
+            return mid
+        elif arr[mid] < target:
+            low = mid + 1
+        else:
+            high = mid - 1
+    return -1
