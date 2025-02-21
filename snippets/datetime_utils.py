@@ -49,3 +49,15 @@ def is_business_day(dt=None):
     if dt is None:
         dt = date.today()
     return dt.weekday() < 5
+
+from datetime import date, timedelta
+
+
+def next_business_day(dt=None):
+    """Return the next weekday after the given date."""
+    if dt is None:
+        dt = date.today()
+    dt += timedelta(days=1)
+    while dt.weekday() >= 5:
+        dt += timedelta(days=1)
+    return dt

@@ -50,3 +50,5 @@
   module: datetime_utils.py
 - name: is_business_day
   module: datetime_utils.py
+- name: next_business_day
+  module: datetime_utils.py
