@@ -156,10 +156,12 @@ class Spinner:
         for ch in itertools.cycle(r'|/-\'):
             if self._stop.is_set():
                 break
-            sys.stdout.write(f'{self.message} {ch}')
+            sys.stdout.write(f'
+{self.message} {ch}')
             sys.stdout.flush()
             time.sleep(0.1)
-        sys.stdout.write(f'{self.message} done
+        sys.stdout.write(f'
+{self.message} done
 ')
 
     def __enter__(self):
@@ -169,3 +171,16 @@ class Spinner:
     def __exit__(self, *_):
         self._stop.set()
         self._thread.join()
+
+import sys
+
+
+def progress_bar(current, total, width=40, prefix='', suffix=''):
+    """Print an inline ASCII progress bar to stdout."""
+    filled = int(width * current / max(total, 1))
+    bar = '=' * filled + '-' * (width - filled)
+    pct = int(100 * current / max(total, 1))
+    sys.stdout.write(f'{prefix}[{bar}] {pct:3d}% {suffix}')
+    sys.stdout.flush()
+    if current >= total:
+        print()

@@ -52,3 +52,5 @@
   module: datetime_utils.py
 - name: next_business_day
   module: datetime_utils.py
+- name: progress_bar
+  module: cli_utils.py
