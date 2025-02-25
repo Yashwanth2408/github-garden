@@ -263,3 +263,17 @@ def shortest_path_bfs(graph, start, end):
                 visited.add(nb)
                 queue.append((nb, path + [nb]))
     return None
+
+def bellman_ford(edges, num_vertices, start):
+    """Bellman-Ford shortest paths. O(VE). Detects negative cycles.
+    edges: [(u, v, weight)]. Returns dist dict or None on neg cycle."""
+    dist = {i: float('inf') for i in range(num_vertices)}
+    dist[start] = 0
+    for _ in range(num_vertices - 1):
+        for u, v, w in edges:
+            if dist[u] + w < dist[v]:
+                dist[v] = dist[u] + w
+    for u, v, w in edges:
+        if dist[u] + w < dist[v]:
+            return None  # negative cycle
+    return dist
