@@ -180,7 +180,40 @@ def progress_bar(current, total, width=40, prefix='', suffix=''):
     filled = int(width * current / max(total, 1))
     bar = '=' * filled + '-' * (width - filled)
     pct = int(100 * current / max(total, 1))
-    sys.stdout.write(f'{prefix}[{bar}] {pct:3d}% {suffix}')
+    sys.stdout.write(f'
+{prefix}[{bar}] {pct:3d}% {suffix}')
     sys.stdout.flush()
     if current >= total:
         print()
+
+import sys
+import itertools
+import threading
+import time
+
+
+class Spinner:
+    """Terminal spinner as a context manager."""
+
+    def __init__(self, message='Working'):
+        self.message = message
+        self._stop = threading.Event()
+        self._thread = threading.Thread(target=self._spin, daemon=True)
+
+    def _spin(self):
+        for ch in itertools.cycle(r'|/-\'):
+            if self._stop.is_set():
+                break
+            sys.stdout.write(f'{self.message} {ch}')
+            sys.stdout.flush()
+            time.sleep(0.1)
+        sys.stdout.write(f'{self.message} done
+')
+
+    def __enter__(self):
+        self._thread.start()
+        return self
+
+    def __exit__(self, *_):
+        self._stop.set()
+        self._thread.join()
