@@ -721,3 +721,33 @@ def _build_lps(p):
         else:
             lps[i] = 0; i += 1
     return lps
+
+def kmp_search(text, pattern):
+    """KMP string search. O(n + m) time.
+    Returns list of start indices where pattern occurs."""
+    if not pattern:
+        return list(range(len(text)))
+    lps = _build_lps(pattern)
+    matches, j = [], 0
+    for i, ch in enumerate(text):
+        while j > 0 and ch != pattern[j]:
+            j = lps[j - 1]
+        if ch == pattern[j]:
+            j += 1
+        if j == len(pattern):
+            matches.append(i - j + 1)
+            j = lps[j - 1]
+    return matches
+
+
+def _build_lps(p):
+    lps = [0] * len(p)
+    length, i = 0, 1
+    while i < len(p):
+        if p[i] == p[length]:
+            length += 1; lps[i] = length; i += 1
+        elif length:
+            length = lps[length - 1]
+        else:
+            lps[i] = 0; i += 1
+    return lps
