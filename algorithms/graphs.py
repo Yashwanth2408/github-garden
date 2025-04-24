@@ -277,3 +277,21 @@ def bellman_ford(edges, num_vertices, start):
         if dist[u] + w < dist[v]:
             return None  # negative cycle
     return dist
+
+from collections import deque
+
+
+def bfs(graph, start):
+    """BFS traversal. Returns nodes in visit order.
+    graph: {node: [neighbors]}"""
+    visited = {start}
+    queue = deque([start])
+    order = []
+    while queue:
+        node = queue.popleft()
+        order.append(node)
+        for nb in graph.get(node, []):
+            if nb not in visited:
+                visited.add(nb)
+                queue.append(nb)
+    return order
