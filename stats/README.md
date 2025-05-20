@@ -4,7 +4,7 @@
 
 | Metric | Value |
 |--------|-------|
-| Total Commits | 3 |
+| Total Commits | 4 |
 | Current Streak | 1 days |
 | Longest Streak | 1 days |
 
@@ -15,12 +15,12 @@
 | Algorithms | 0 |
 | Snippets | 0 |
 | Logs | 0 |
-| Stats | 3 |
+| Stats | 4 |
 
 ## Monthly Activity
 
 ```
-  2025-01  ████████████████████ 1
-  2025-03  ████████████████████ 1
-  2025-05  ████████████████████ 1
+  2025-01  ██████████ 1
+  2025-03  ██████████ 1
+  2025-05  ████████████████████ 2
 ```
