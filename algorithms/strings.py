@@ -841,3 +841,28 @@ def _build_lps(p):
         else:
             lps[i] = 0; i += 1
     return lps
+
+from collections import Counter
+
+
+def is_anagram(s, t):
+    """Check if s and t are anagrams. O(n) time."""
+    return Counter(s) == Counter(t)
+
+
+def find_anagrams(s, p):
+    """Find all start indices of p's anagrams in s. O(n) sliding window."""
+    if len(p) > len(s):
+        return []
+    need = Counter(p)
+    window = Counter(s[:len(p)])
+    result = [0] if window == need else []
+    for i in range(len(p), len(s)):
+        ch_in, ch_out = s[i], s[i - len(p)]
+        window[ch_in] += 1
+        window[ch_out] -= 1
+        if window[ch_out] == 0:
+            del window[ch_out]
+        if window == need:
+            result.append(i - len(p) + 1)
+    return result
