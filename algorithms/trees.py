@@ -921,3 +921,42 @@ def deserialize(data):
             node.right = make(vals[i]); queue.append(node.right)
         i += 1
     return root
+
+class BST:
+    """Binary Search Tree — insert, search, in-order traversal."""
+
+    class _Node:
+        def __init__(self, val):
+            self.val = val
+            self.left = self.right = None
+
+    def __init__(self):
+        self.root = None
+
+    def insert(self, val):
+        self.root = self._insert(self.root, val)
+
+    def _insert(self, node, val):
+        if node is None:
+            return self._Node(val)
+        if val < node.val:
+            node.left = self._insert(node.left, val)
+        elif val > node.val:
+            node.right = self._insert(node.right, val)
+        return node
+
+    def search(self, val):
+        node = self.root
+        while node:
+            if val == node.val:
+                return True
+            node = node.left if val < node.val else node.right
+        return False
+
+    def inorder(self):
+        result = []
+        def _walk(n):
+            if n:
+                _walk(n.left); result.append(n.val); _walk(n.right)
+        _walk(self.root)
+        return result
