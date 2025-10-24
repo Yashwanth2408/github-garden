@@ -501,3 +501,22 @@ def shortest_path_bfs(graph, start, end):
                 visited.add(nb)
                 queue.append((nb, path + [nb]))
     return None
+
+from collections import deque
+
+
+def shortest_path_bfs(graph, start, end):
+    """BFS shortest path in unweighted graph. Returns path list or None."""
+    if start == end:
+        return [start]
+    visited = {start}
+    queue = deque([(start, [start])])
+    while queue:
+        node, path = queue.popleft()
+        for nb in graph.get(node, []):
+            if nb == end:
+                return path + [nb]
+            if nb not in visited:
+                visited.add(nb)
+                queue.append((nb, path + [nb]))
+    return None
