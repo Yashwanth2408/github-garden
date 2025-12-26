@@ -798,3 +798,18 @@ def shortest_path_bfs(graph, start, end):
                 visited.add(nb)
                 queue.append((nb, path + [nb]))
     return None
+
+def has_cycle_directed(graph):
+    """Detect cycle in directed graph via DFS coloring. O(V + E)."""
+    WHITE, GRAY, BLACK = 0, 1, 2
+    color = {n: WHITE for n in graph}
+
+    def dfs(node):
+        color[node] = GRAY
+        for nb in graph.get(node, []):
+            if color[nb] == GRAY or (color[nb] == WHITE and dfs(nb)):
+                return True
+        color[node] = BLACK
+        return False
+
+    return any(dfs(n) for n in graph if color[n] == WHITE)
