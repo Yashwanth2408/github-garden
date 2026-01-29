@@ -1465,3 +1465,11 @@ def deserialize(data):
             node.right = make(vals[i]); queue.append(node.right)
         i += 1
     return root
+
+def lowest_common_ancestor(root, p, q):
+    """LCA in binary tree. O(n) time, O(h) space."""
+    if root is None or root == p or root == q:
+        return root
+    left = lowest_common_ancestor(root.left, p, q)
+    right = lowest_common_ancestor(root.right, p, q)
+    return root if (left and right) else (left or right)
