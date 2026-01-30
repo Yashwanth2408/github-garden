@@ -669,3 +669,20 @@ def knapsack_01(weights, values, capacity):
             selected.append(i - 1)
             w -= weights[i-1]
     return dp[n][capacity], list(reversed(selected))
+
+def knapsack_01(weights, values, capacity):
+    """0/1 Knapsack. O(n * capacity) time and space.
+    Returns (max_value, list_of_selected_indices)."""
+    n = len(weights)
+    dp = [[0] * (capacity + 1) for _ in range(n + 1)]
+    for i in range(1, n + 1):
+        for w in range(capacity + 1):
+            dp[i][w] = dp[i-1][w]
+            if weights[i-1] <= w:
+                dp[i][w] = max(dp[i][w], dp[i-1][w - weights[i-1]] + values[i-1])
+    selected, w = [], capacity
+    for i in range(n, 0, -1):
+        if dp[i][w] != dp[i-1][w]:
+            selected.append(i - 1)
+            w -= weights[i-1]
+    return dp[n][capacity], list(reversed(selected))
