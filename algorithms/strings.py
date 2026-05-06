@@ -1902,3 +1902,23 @@ def longest_palindromic_substring(s):
             if len(sub) > len(best):
                 best = sub
     return best
+
+def is_palindrome(s):
+    """Check palindrome ignoring case and non-alphanumeric. O(n)."""
+    filtered = [c.lower() for c in s if c.isalnum()]
+    return filtered == filtered[::-1]
+
+
+def longest_palindromic_substring(s):
+    """Longest palindromic substring — expand around center. O(n²)."""
+    def expand(l, r):
+        while l >= 0 and r < len(s) and s[l] == s[r]:
+            l -= 1; r += 1
+        return s[l + 1:r]
+
+    best = ''
+    for i in range(len(s)):
+        for sub in (expand(i, i), expand(i, i + 1)):
+            if len(sub) > len(best):
+                best = sub
+    return best
