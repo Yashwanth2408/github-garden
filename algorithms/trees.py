@@ -1966,3 +1966,21 @@ class BST:
                 _walk(n.left); result.append(n.val); _walk(n.right)
         _walk(self.root)
         return result
+
+def tree_height(root):
+    """Height of binary tree. O(n) time."""
+    if root is None:
+        return 0
+    return 1 + max(tree_height(root.left), tree_height(root.right))
+
+
+def is_balanced(root):
+    """True if tree is height-balanced. O(n) time."""
+    def check(node):
+        if node is None:
+            return 0
+        l, r = check(node.left), check(node.right)
+        if l == -1 or r == -1 or abs(l - r) > 1:
+            return -1
+        return 1 + max(l, r)
+    return check(root) != -1
