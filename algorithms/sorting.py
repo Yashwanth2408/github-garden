@@ -13,3 +13,14 @@ def counting_sort(arr, max_val=None):
     for num, freq in enumerate(count):
         result.extend([num] * freq)
     return result
+
+def binary_search_leftmost(arr, target):
+    """Find leftmost occurrence in sorted array. O(log n) time."""
+    low, high = 0, len(arr)
+    while low < high:
+        mid = (low + high) // 2
+        if arr[mid] < target:
+            low = mid + 1
+        else:
+            high = mid
+    return low if low < len(arr) and arr[low] == target else -1
