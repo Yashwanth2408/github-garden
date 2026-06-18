@@ -2,15 +2,15 @@ import hashlib
 import random
 from datetime import date, datetime, timedelta
 
-# Mon=1.0, Tue=1.1, Wed=1.3, Thu=1.2, Fri=1.0, Sat=0.65, Sun=0.55
-DAY_WEIGHT = [1.0, 1.1, 1.3, 1.2, 1.0, 0.65, 0.55]
+# Mon=1.0, Tue=1.1, Wed=1.3, Thu=1.2, Fri=1.0, Sat=0.45, Sun=0.35
+DAY_WEIGHT = [1.0, 1.1, 1.3, 1.2, 1.0, 0.45, 0.35]
 
 HOUR_BASES = [9, 12, 15, 18, 21]
 
-# Slightly above the original — avg ~3 commits per trigger,
-# max 7 for occasional bursts. Total daily: 5-10 weekdays, 2-4 weekends.
-COUNT_CHOICES = [1, 2, 3, 4, 5, 6, 7]
-COUNT_WEIGHTS = [18, 28, 24, 16, 8, 4, 2]
+# Target: 25-35 commits/day on weekdays, 8-12 on weekends
+# avg ~5.4 per trigger × 5 triggers × ~92% weekday fire rate = ~25/day
+COUNT_CHOICES = [2, 3, 4, 5, 6, 7, 8, 9, 10]
+COUNT_WEIGHTS = [5, 10, 16, 22, 22, 13, 7, 3, 2]
 
 
 def daily_seed(target_date: date) -> int:
@@ -32,7 +32,7 @@ def should_commit(target_date: date = None, run_number: int = 0) -> bool:
     if rng.random() < 0.04:
         return False
     day_w = DAY_WEIGHT[target_date.weekday()]
-    skip_chance = 1.0 - (day_w * 0.75)  # weekdays: 25% skip · weekends: 45-59% skip
+    skip_chance = 1.0 - (day_w * 0.92)  # weekdays: ~8% skip · weekends: ~58-68% skip
     return rng.random() > skip_chance
 
 
