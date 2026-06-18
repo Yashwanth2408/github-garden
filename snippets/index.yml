@@ -2,3 +2,5 @@
 # Each entry is a utility function added to the snippets library
 - name: slugify
   module: string_utils.py
+- name: truncate
+  module: string_utils.py
