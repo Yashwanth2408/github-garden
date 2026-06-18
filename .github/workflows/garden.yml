@@ -45,6 +45,10 @@ jobs:
 
       - name: Push if changed
         run: |
-          git diff --quiet && git diff --staged --quiet \
-            && echo "Garden rests today — nothing to push." \
-            || git push origin main
+          AHEAD=$(git log origin/main..HEAD --oneline | wc -l)
+          if [ "$AHEAD" -gt 0 ]; then
+            echo "Pushing $AHEAD new commit(s)."
+            git push origin main
+          else
+            echo "Garden rests today — nothing to push."
+          fi
