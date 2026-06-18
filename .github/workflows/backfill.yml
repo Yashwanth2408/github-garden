@@ -1,0 +1,41 @@
+name: Backfill Garden
+
+on:
+  workflow_dispatch:
+    inputs:
+      start_date:
+        description: 'Start date (YYYY-MM-DD)'
+        required: true
+      end_date:
+        description: 'End date (YYYY-MM-DD)'
+        required: true
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Configure git identity
+        run: |
+          git config user.email "yashwanthbalaji.2408@gmail.com"
+          git config user.name "Yashwanth2408"
+
+      - name: Run backfill
+        env:
+          BACKFILL_MODE: 'true'
+          START_DATE: ${{ inputs.start_date }}
+          END_DATE: ${{ inputs.end_date }}
+        run: python garden/water.py --backfill
+
+      - name: Push
+        run: git push origin main
