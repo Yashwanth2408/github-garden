@@ -15,3 +15,11 @@ def truncate(text, max_len, suffix='...'):
     if len(text) <= max_len:
         return text
     return text[:max_len - len(suffix)] + suffix
+
+import re
+
+
+def camel_to_snake(name):
+    """Convert camelCase or PascalCase to snake_case."""
+    s1 = re.sub('(.)([A-Z][a-z]+)', r'_', name)
+    return re.sub('([a-z0-9])([A-Z])', r'_', s1).lower()

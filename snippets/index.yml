@@ -4,3 +4,5 @@
   module: string_utils.py
 - name: truncate
   module: string_utils.py
+- name: camel_to_snake
+  module: string_utils.py
