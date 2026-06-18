@@ -6,3 +6,5 @@
   module: string_utils.py
 - name: camel_to_snake
   module: string_utils.py
+- name: snake_to_camel
+  module: string_utils.py
