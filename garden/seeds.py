@@ -2,13 +2,15 @@ import hashlib
 import random
 from datetime import date, datetime, timedelta
 
-# Mon=1.0, Tue=1.1, Wed=1.2, Thu=1.1, Fri=0.9, Sat=0.55, Sun=0.50
-DAY_WEIGHT = [1.0, 1.1, 1.2, 1.1, 0.9, 0.55, 0.50]
+# Mon=1.0, Tue=1.1, Wed=1.3, Thu=1.2, Fri=1.0, Sat=0.65, Sun=0.55
+DAY_WEIGHT = [1.0, 1.1, 1.3, 1.2, 1.0, 0.65, 0.55]
 
 HOUR_BASES = [9, 12, 15, 18, 21]
 
-COUNT_CHOICES = [1, 2, 3, 4, 5]
-COUNT_WEIGHTS = [40, 30, 20, 7, 3]
+# Per-trigger commit counts — weighted to give natural variation:
+# most triggers produce 1-3 commits, occasionally 4-6 for dark-green bursts
+COUNT_CHOICES = [1, 2, 3, 4, 5, 6]
+COUNT_WEIGHTS = [28, 28, 20, 13, 7, 4]
 
 
 def daily_seed(target_date: date) -> int:
@@ -30,7 +32,7 @@ def should_commit(target_date: date = None, run_number: int = 0) -> bool:
     if rng.random() < 0.06:
         return False
     day_w = DAY_WEIGHT[target_date.weekday()]
-    skip_chance = 1.0 - (day_w * 0.7)  # ranges 0.35 (Wed) to 0.65 (Sun)
+    skip_chance = 1.0 - (day_w * 0.75)  # ranges ~0.025 (Wed) to 0.59 (Sun)
     return rng.random() > skip_chance
 
 
