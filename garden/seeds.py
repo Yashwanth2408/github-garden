@@ -2,15 +2,15 @@ import hashlib
 import random
 from datetime import date, datetime, timedelta
 
-# Mon=1.0, Tue=1.1, Wed=1.3, Thu=1.2, Fri=1.0, Sat=0.65, Sun=0.55
-DAY_WEIGHT = [1.0, 1.1, 1.3, 1.2, 1.0, 0.65, 0.55]
+# Mon=1.0, Tue=1.15, Wed=1.3, Thu=1.25, Fri=1.05, Sat=0.65, Sun=0.55
+DAY_WEIGHT = [1.0, 1.15, 1.3, 1.25, 1.05, 0.65, 0.55]
 
 HOUR_BASES = [9, 12, 15, 18, 21]
 
-# Per-trigger commit counts — weighted to give natural variation:
-# most triggers produce 1-3 commits, occasionally 4-6 for dark-green bursts
-COUNT_CHOICES = [1, 2, 3, 4, 5, 6]
-COUNT_WEIGHTS = [28, 28, 20, 13, 7, 4]
+# Per-trigger commit counts — max mode: peaks at 15-25/day on weekdays,
+# 4-8 on weekends, with realistic low days sprinkled in
+COUNT_CHOICES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+COUNT_WEIGHTS = [5, 8, 12, 16, 18, 16, 12, 7, 4, 2]
 
 
 def daily_seed(target_date: date) -> int:
@@ -28,11 +28,13 @@ def should_commit(target_date: date = None, run_number: int = 0) -> bool:
     if target_date is None:
         target_date = date.today()
     rng = random.Random(daily_seed(target_date) + run_number * 7919)
-    # ~6% chance per trigger of a full rest — accumulates to ~1.5 skip-days/month
-    if rng.random() < 0.06:
+    # ~3% rest chance on weekdays, ~8% on weekends → ~1 full rest day/month
+    weekday = target_date.weekday()
+    rest_chance = 0.03 if weekday < 5 else 0.08
+    if rng.random() < rest_chance:
         return False
-    day_w = DAY_WEIGHT[target_date.weekday()]
-    skip_chance = 1.0 - (day_w * 0.75)  # ranges ~0.025 (Wed) to 0.59 (Sun)
+    day_w = DAY_WEIGHT[weekday]
+    skip_chance = 1.0 - (day_w * 0.88)  # weekdays: ~12% skip · weekends: ~42% skip
     return rng.random() > skip_chance
 
 
