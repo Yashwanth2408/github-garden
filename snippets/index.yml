@@ -10,3 +10,5 @@
   module: string_utils.py
 - name: flatten
   module: string_utils.py
+- name: color_print
+  module: cli_utils.py
