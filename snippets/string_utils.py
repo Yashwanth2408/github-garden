@@ -51,3 +51,12 @@ def memoize(func):
     wrapper.cache = cache
     wrapper.cache_clear = lambda: cache.clear()
     return wrapper
+
+def parse_size(size_str):
+    """Parse human-readable size to bytes. '1.5 MB' -> 1572864."""
+    units = {'B': 1, 'KB': 1024, 'MB': 1024**2, 'GB': 1024**3, 'TB': 1024**4}
+    s = size_str.strip().upper()
+    for unit, mult in sorted(units.items(), key=lambda x: -x[1]):
+        if s.endswith(unit):
+            return int(float(s[:-len(unit)].strip()) * mult)
+    return int(s)

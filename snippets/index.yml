@@ -16,3 +16,5 @@
   module: string_utils.py
 - name: table_print
   module: cli_utils.py
+- name: parse_size
+  module: string_utils.py
