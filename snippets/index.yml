@@ -8,3 +8,5 @@
   module: string_utils.py
 - name: snake_to_camel
   module: string_utils.py
+- name: flatten
+  module: string_utils.py
