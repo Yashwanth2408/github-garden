@@ -14,3 +14,5 @@
   module: cli_utils.py
 - name: memoize
   module: string_utils.py
+- name: table_print
+  module: cli_utils.py
