@@ -60,3 +60,7 @@ def parse_size(size_str):
         if s.endswith(unit):
             return int(float(s[:-len(unit)].strip()) * mult)
     return int(s)
+
+def chunk_list(lst, size):
+    """Split a list into chunks of given size."""
+    return [lst[i:i + size] for i in range(0, len(lst), size)]

@@ -18,3 +18,5 @@
   module: cli_utils.py
 - name: parse_size
   module: string_utils.py
+- name: chunk_list
+  module: string_utils.py
