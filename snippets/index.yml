@@ -12,3 +12,5 @@
   module: string_utils.py
 - name: color_print
   module: cli_utils.py
+- name: memoize
+  module: string_utils.py

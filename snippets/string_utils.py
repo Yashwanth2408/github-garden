@@ -40,3 +40,14 @@ def flatten(nested, depth=None):
         else:
             result.append(item)
     return result
+
+def memoize(func):
+    """Simple memoization decorator using a dict cache."""
+    cache = {}
+    def wrapper(*args):
+        if args not in cache:
+            cache[args] = func(*args)
+        return cache[args]
+    wrapper.cache = cache
+    wrapper.cache_clear = lambda: cache.clear()
+    return wrapper
