@@ -5,22 +5,21 @@ from datetime import date, datetime, timedelta
 HOUR_BASES = [3, 7, 11, 14, 18]
 _GARDEN_FRAC = 0.70
 
-# Seasonal activity weights — each calendar month gets a base activity level.
-# Higher = more active/burst weeks that month; lower = mostly empty.
-# This creates clear "busy periods" and "quiet stretches" across the year.
+# Seasonal activity weight per calendar month.
+# Higher = more active/burst weeks; lower = mostly quiet.
 _SEASON = {
-    1: 0.82,   # Jan — productive, post-holiday grind
+    1: 0.82,   # Jan — dense
     2: 0.78,   # Feb — active
-    3: 0.72,   # Mar — still strong
-    4: 0.50,   # Apr — slowing down
-    5: 0.42,   # May — lighter
-    6: 0.25,   # Jun — summer begins, sparsely active
-    7: 0.12,   # Jul — summer break, mostly empty
-    8: 0.18,   # Aug — still quiet
-    9: 0.48,   # Sep — back to work
+    3: 0.72,   # Mar — active
+    4: 0.55,   # Apr — moderate
+    5: 0.48,   # May — lighter
+    6: 0.42,   # Jun — sparse start of summer
+    7: 0.35,   # Jul — summer quiet
+    8: 0.38,   # Aug — quiet
+    9: 0.55,   # Sep — back to work
     10: 0.65,  # Oct — picking up
     11: 0.72,  # Nov — productive
-    12: 0.58,  # Dec — active then holiday tail-off
+    12: 0.62,  # Dec — active
 }
 
 
@@ -34,48 +33,65 @@ def _week_seed(target_date: date) -> int:
     return int(hashlib.md5(key.encode()).hexdigest(), 16) % (2 ** 32)
 
 
+def _month_seed_days(year: int, month: int) -> set:
+    """Return a set of day-of-month ints that are guaranteed to have commits.
+    Low-season months (summer) get 2-3 seeded days so there's always at least
+    some visible green — prevents unlucky all-quiet months.
+    High-season months get 0 seed days (natural activity is plentiful)."""
+    season = _SEASON[month]
+    if season >= 0.50:
+        return set()   # Active months don't need a floor
+
+    # Number of seed days scales inversely with season
+    n = 3 if season < 0.40 else 2
+    key = f'{year}-{month:02d}-seeddays'
+    rng = random.Random(int(hashlib.md5(key.encode()).hexdigest(), 16) % (2 ** 32))
+    days = set()
+    while len(days) < n:
+        days.add(rng.randint(1, 28))   # day 1-28 always valid in any month
+    return days
+
+
 def _week_score(target_date: date) -> int:
-    """Week-level activity score 0-3.
-    Quiet probability is inverse of the month's season weight,
-    so summer months are mostly 0 (empty) and winter months
-    have more 2s and 3s (active/burst)."""
     season = _SEASON[target_date.month]
     rng = random.Random(_week_seed(target_date))
     r = rng.random()
-
-    quiet_p = 1.0 - season          # e.g. Jul: 88% quiet, Jan: 18% quiet
+    quiet_p = 1.0 - season
     if r < quiet_p:
-        return 0                    # entire week empty
-
-    # Distribute remaining probability across scores 1-3
+        return 0
     r2 = (r - quiet_p) / (1.0 - quiet_p)
-    if r2 < 0.45: return 1          # light  — 45% of non-quiet weeks
-    if r2 < 0.80: return 2          # active — 35%
-    return 3                        # burst  — 20%
+    if r2 < 0.45: return 1
+    if r2 < 0.80: return 2
+    return 3
 
 
 def is_rest_day(target_date: date) -> bool:
-    """True when this specific day has 0 commits.
-    Quiet weeks = all days rest. Within active weeks, some days still skip."""
+    # Seeded days are never rest days (guaranteed visible activity)
+    if target_date.day in _month_seed_days(target_date.year, target_date.month):
+        return False
+
     score = _week_score(target_date)
     if score == 0:
         return True
-    # Day-level rest probability (higher score = fewer rest days within week)
     rest_prob = {1: 0.62, 2: 0.32, 3: 0.14}[score]
     rng = random.Random(daily_seed(target_date) + 999983)
     return rng.random() < rest_prob
 
 
 def _day_budget(target_date: date) -> int:
-    """Total commits for the day across all repos combined."""
+    is_seed = target_date.day in _month_seed_days(target_date.year, target_date.month)
+    score = _week_score(target_date)
+
+    if score == 0 and is_seed:
+        # Seed day in a quiet week: light activity (1-3 commits)
+        rng = random.Random(daily_seed(target_date) + 55555)
+        return rng.randint(1, 3)
+
     if is_rest_day(target_date):
         return 0
-    score = _week_score(target_date)
+
     weekday = target_date.weekday()
     weekend = weekday >= 5
-
-    # Wider spread between scores so GitHub shows distinct colour shades:
-    # score-1 days → light green, score-3 burst days → bright green
     ranges = {
         1: (1, 2) if weekend else (1, 3),
         2: (1, 3) if weekend else (3, 7),
@@ -87,7 +103,6 @@ def _day_budget(target_date: date) -> int:
 
 
 def garden_daily_total(target_date: date) -> int:
-    """70% of day budget — handled by garden.yml's 5 cron triggers."""
     budget = _day_budget(target_date)
     if budget == 0:
         return 0
@@ -95,7 +110,6 @@ def garden_daily_total(target_date: date) -> int:
 
 
 def multi_repo_daily_total(target_date: date) -> int:
-    """30% of day budget — handled by multi_repo.yml across other repos."""
     budget = _day_budget(target_date)
     if budget == 0:
         return 0
