@@ -101,11 +101,26 @@ def main():
         end = date.fromisoformat(os.environ['END_DATE'])
         total = 0
         current = start
+        CHUNK = 30  # push every 30 days to keep each push manageable
+
         while current <= end:
-            # Simulate all 5 daily triggers so the commit count matches the target level
-            for rn in range(5):
-                total += run_for_date(current, run_number=rn, force=False, dry_run=dry_run)
-            current += timedelta(days=1)
+            chunk_end = min(current + timedelta(days=CHUNK - 1), end)
+            day = current
+            while day <= chunk_end:
+                for rn in range(5):
+                    total += run_for_date(day, run_number=rn, force=False, dry_run=dry_run)
+                day += timedelta(days=1)
+
+            if not dry_run:
+                ahead_out, _ = git('log', 'origin/main..HEAD', '--oneline')
+                if ahead_out.strip():
+                    subprocess.run(['git', 'pull', '--rebase', 'origin', 'main'],
+                                   capture_output=True)
+                    subprocess.run(['git', 'push', 'origin', 'main'])
+                    print(f'  pushed chunk {current} → {chunk_end}')
+
+            current = chunk_end + timedelta(days=1)
+
         print(f'backfill done: {total} commits from {start} to {end}')
     else:
         backfill_date_str = os.getenv('BACKFILL_DATE', '').strip()

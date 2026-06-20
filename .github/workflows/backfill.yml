@@ -36,13 +36,4 @@ jobs:
           START_DATE: ${{ inputs.start_date }}
           END_DATE: ${{ inputs.end_date }}
         run: python garden/water.py --backfill
-
-      - name: Push
-        run: |
-          AHEAD=$(git log origin/main..HEAD --oneline | wc -l)
-          if [ "$AHEAD" -gt 0 ]; then
-            echo "Pushing $AHEAD new commit(s)."
-            git push origin main
-          else
-            echo "Nothing to push."
-          fi
+        # water.py pushes every 30 days internally — no separate push step needed
