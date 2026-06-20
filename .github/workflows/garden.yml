@@ -5,8 +5,8 @@ on:
     - cron: '30 3 * * *'    #  9:00 AM IST — morning session
     - cron: '0 7 * * *'     # 12:30 PM IST — midday
     - cron: '30 11 * * *'   #  5:00 PM IST — after college/work
-    - cron: '0 15 * * *'    #  8:30 PM IST — evening deep work
-    - cron: '0 18 * * *'    # 11:30 PM IST — late night session
+    - cron: '0 14 * * *'    #  7:30 PM IST — evening
+    - cron: '0 18 * * *'    # 11:30 PM IST — late night
   workflow_dispatch:
     inputs:
       force_commit:
