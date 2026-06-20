@@ -1,0 +1,31 @@
+name: Tend Other Repos
+
+on:
+  schedule:
+    - cron: '0 5 * * *'    # 10:30 AM IST — mid-morning
+    - cron: '30 12 * * *'  #  6:00 PM IST — end of workday
+  workflow_dispatch:
+    inputs:
+      target_repo:
+        description: 'Force update a specific repo (owner/name), blank = auto'
+        default: ''
+
+jobs:
+  tend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout garden
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Tend other repositories
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
+          GARDEN_SEED: ${{ github.run_number }}
+          TARGET_REPO: ${{ inputs.target_repo }}
+        run: python garden/multi_repo.py
