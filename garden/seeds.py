@@ -3,25 +3,32 @@ import random
 from datetime import date, datetime, timedelta
 
 # UTC trigger hours (IST = UTC + 5:30)
-# 3:30 UTC = 9:00 AM IST  |  7:00 = 12:30 PM  |  11:30 = 5:00 PM
-# 14:00 = 7:30 PM IST     |  18:00 = 11:30 PM IST
 HOUR_BASES = [3, 7, 11, 14, 18]
 
-# Daily commit budget ranges mapped to exact shade levels:
-#   Level 1 = 0       (Empty)
-#   Level 2 = 1-3     (Light Green)
-#   Level 3 = 4-8     (Medium Green)
-#   Level 4 = 9-15    (Dark Green)
-#   Level 5 = 16+     (Bright Green)
-_DAY_RANGES = {
-    0: (5, 7),    # Mon → Level 3  Medium Green
-    1: (10, 14),  # Tue → Level 4  Dark Green
-    2: (17, 22),  # Wed → Level 5  Bright Green (peak)
-    3: (16, 20),  # Thu → Level 5  Bright Green
-    4: (5, 7),    # Fri → Level 3  Medium Green
-    5: (2, 3),    # Sat → Level 2  Light Green
-    6: (1, 2),    # Sun → Level 2  Light Green (very low)
-}
+# Shade thresholds (GitHub's 5-level scale):
+#   Level 1 = 0 commits  (empty)
+#   Level 2 = 1-3        (light green)
+#   Level 3 = 4-8        (medium green)
+#   Level 4 = 9-15       (dark green)
+#   Level 5 = 16+        (bright green)
+
+# Daily commit budget sequence — 7 slots for 7 days, ordered HIGH → LOW.
+# Each week this sequence rotates so no day is always the peak.
+# Distribution is always: 2×L5, 1×L4, 2×L3, 2×L2 per week.
+_LEVEL_SEQ = [
+    (17, 22),  # slot 0 — Level 5, Bright Green (peak-high)
+    (16, 20),  # slot 1 — Level 5, Bright Green (peak-low)
+    (10, 14),  # slot 2 — Level 4, Dark Green
+    (5, 7),    # slot 3 — Level 3, Medium Green
+    (5, 7),    # slot 4 — Level 3, Medium Green
+    (2, 3),    # slot 5 — Level 2, Light Green
+    (1, 2),    # slot 6 — Level 2, Light Green (lowest)
+]
+
+# 70% of the daily budget goes to garden.yml (5 triggers).
+# 30% goes to multi_repo.yml (2 triggers across other repos).
+# Both workflows read the same budget — together they hit the target.
+_GARDEN_FRAC = 0.70
 
 
 def daily_seed(target_date: date) -> int:
@@ -30,29 +37,48 @@ def daily_seed(target_date: date) -> int:
 
 
 def is_rest_day(target_date: date) -> bool:
-    """~7% of days are 0-commit rest days → ~2 per month.
-    Day-level decision so all 5 triggers agree."""
+    """~7% of days = 0 commits for EVERYONE (~2 per month).
+    Day-level decision so garden + multi_repo both skip."""
     rng = random.Random(daily_seed(target_date) + 999983)
     return rng.random() < 0.07
 
 
 def _day_budget(target_date: date) -> int:
-    """Total commits for the entire day. 0 on rest days."""
+    """Total commits planned for the entire day (garden + other repos combined).
+    The level sequence rotates each week so the peak days shift around."""
     if is_rest_day(target_date):
         return 0
+    iso_week = target_date.isocalendar()[1]
+    rotation = iso_week % 7
+    slot = (target_date.weekday() + rotation) % 7
+    lo, hi = _LEVEL_SEQ[slot]
     rng = random.Random(daily_seed(target_date) + 88881)
-    lo, hi = _DAY_RANGES[target_date.weekday()]
     return rng.randint(lo, hi)
 
 
-def _trigger_share(target_date: date, run_number: int) -> int:
-    """Splits the day budget across 5 triggers (run_number 0-4).
-    Each trigger gets floor(budget/5); first (budget % 5) triggers get +1."""
+def garden_daily_total(target_date: date) -> int:
+    """How many commits garden.yml is responsible for today (≈70% of budget)."""
     budget = _day_budget(target_date)
     if budget == 0:
         return 0
-    base = budget // 5
-    remainder = budget % 5
+    return max(1, round(budget * _GARDEN_FRAC))
+
+
+def multi_repo_daily_total(target_date: date) -> int:
+    """How many commits multi_repo.yml is responsible for today (≈30% of budget)."""
+    budget = _day_budget(target_date)
+    if budget == 0:
+        return 0
+    return budget - garden_daily_total(target_date)
+
+
+def _trigger_share(target_date: date, run_number: int) -> int:
+    """Split garden_daily_total across garden.yml's 5 triggers."""
+    total = garden_daily_total(target_date)
+    if total == 0:
+        return 0
+    base = total // 5
+    remainder = total % 5
     return base + (1 if run_number < remainder else 0)
 
 
