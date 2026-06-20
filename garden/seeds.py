@@ -16,13 +16,13 @@ HOUR_BASES = [3, 7, 11, 14, 18]
 # Each week this sequence rotates so no day is always the peak.
 # Distribution is always: 2×L5, 1×L4, 2×L3, 2×L2 per week.
 _LEVEL_SEQ = [
-    (17, 22),  # slot 0 — Level 5, Bright Green (peak-high)
-    (16, 20),  # slot 1 — Level 5, Bright Green (peak-low)
-    (10, 14),  # slot 2 — Level 4, Dark Green
-    (5, 7),    # slot 3 — Level 3, Medium Green
-    (5, 7),    # slot 4 — Level 3, Medium Green
-    (2, 3),    # slot 5 — Level 2, Light Green
-    (1, 2),    # slot 6 — Level 2, Light Green (lowest)
+    (6, 9),    # slot 0 — peak-high  (bright green)
+    (5, 8),    # slot 1 — peak-low   (bright green)
+    (3, 6),    # slot 2 — high       (dark green)
+    (2, 4),    # slot 3 — medium     (medium green)
+    (2, 3),    # slot 4 — medium-low (medium green)
+    (1, 2),    # slot 5 — light      (light green)
+    (1, 1),    # slot 6 — minimal    (light green)
 ]
 
 # 70% of the daily budget goes to garden.yml (5 triggers).
@@ -37,10 +37,10 @@ def daily_seed(target_date: date) -> int:
 
 
 def is_rest_day(target_date: date) -> bool:
-    """~7% of days = 0 commits for EVERYONE (~2 per month).
+    """~35% of days = 0 commits (~10 per month) — keeps graph realistic.
     Day-level decision so garden + multi_repo both skip."""
     rng = random.Random(daily_seed(target_date) + 999983)
-    return rng.random() < 0.07
+    return rng.random() < 0.35
 
 
 def _day_budget(target_date: date) -> int:
