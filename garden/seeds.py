@@ -2,62 +2,68 @@ import hashlib
 import random
 from datetime import date, datetime, timedelta
 
-# UTC trigger hours (IST = UTC + 5:30)
 HOUR_BASES = [3, 7, 11, 14, 18]
-
-# Shade thresholds (GitHub's 5-level scale):
-#   Level 1 = 0 commits  (empty)
-#   Level 2 = 1-3        (light green)
-#   Level 3 = 4-8        (medium green)
-#   Level 4 = 9-15       (dark green)
-#   Level 5 = 16+        (bright green)
-
-# Daily commit budget sequence — 7 slots for 7 days, ordered HIGH → LOW.
-# Each week this sequence rotates so no day is always the peak.
-# Distribution is always: 2×L5, 1×L4, 2×L3, 2×L2 per week.
-_LEVEL_SEQ = [
-    (6, 9),    # slot 0 — peak-high  (bright green)
-    (5, 8),    # slot 1 — peak-low   (bright green)
-    (3, 6),    # slot 2 — high       (dark green)
-    (2, 4),    # slot 3 — medium     (medium green)
-    (2, 3),    # slot 4 — medium-low (medium green)
-    (1, 2),    # slot 5 — light      (light green)
-    (1, 1),    # slot 6 — minimal    (light green)
-]
-
-# 70% of the daily budget goes to garden.yml (5 triggers).
-# 30% goes to multi_repo.yml (2 triggers across other repos).
-# Both workflows read the same budget — together they hit the target.
 _GARDEN_FRAC = 0.70
+
+# Week-score system — drives the "burst and gap" pattern seen in real graphs.
+# Each week is independently scored:
+#   0 = quiet  (30%) — whole week empty, large grey stretches
+#   1 = light  (32%) — 2-3 active days, low commit counts
+#   2 = active (26%) — 4-5 active days, moderate counts
+#   3 = burst  (12%) — almost all days, higher counts
+# This produces visible clusters of green separated by empty gaps.
 
 
 def daily_seed(target_date: date) -> int:
-    """Deterministic seed — same date always produces same pattern."""
     return int(hashlib.md5(str(target_date).encode()).hexdigest(), 16) % (2 ** 32)
 
 
+def _week_seed(target_date: date) -> int:
+    iso_year, iso_week, _ = target_date.isocalendar()
+    key = f'{iso_year}-w{iso_week:02d}'
+    return int(hashlib.md5(key.encode()).hexdigest(), 16) % (2 ** 32)
+
+
+def _week_score(target_date: date) -> int:
+    """Activity level for this ISO week. Same score for every day of the week."""
+    rng = random.Random(_week_seed(target_date))
+    r = rng.random()
+    if r < 0.30: return 0   # quiet  30%
+    if r < 0.62: return 1   # light  32%
+    if r < 0.88: return 2   # active 26%
+    return 3                 # burst  12%
+
+
 def is_rest_day(target_date: date) -> bool:
-    """~35% of days = 0 commits (~10 per month) — keeps graph realistic.
-    Day-level decision so garden + multi_repo both skip."""
+    score = _week_score(target_date)
+    if score == 0:
+        return True  # entire quiet week = all grey squares
+    rest_prob = {1: 0.60, 2: 0.30, 3: 0.12}[score]
     rng = random.Random(daily_seed(target_date) + 999983)
-    return rng.random() < 0.35
+    return rng.random() < rest_prob
 
 
 def _day_budget(target_date: date) -> int:
-    """Total commits planned for the entire day (garden + other repos combined).
-    The level sequence rotates each week so the peak days shift around."""
+    """Total commits for the day across ALL repos combined."""
     if is_rest_day(target_date):
         return 0
-    iso_week = target_date.isocalendar()[1]
-    rotation = iso_week % 7
-    slot = (target_date.weekday() + rotation) % 7
-    lo, hi = _LEVEL_SEQ[slot]
+    score = _week_score(target_date)
+    weekday = target_date.weekday()
+    weekend = weekday >= 5
+
+    # Lower ranges on weekends, higher mid-week
+    ranges = {
+        1: (1, 2) if weekend else (1, 3),
+        2: (1, 3) if weekend else (2, 6),
+        3: (2, 4) if weekend else (4, 9),
+    }
+    lo, hi = ranges[score]
     rng = random.Random(daily_seed(target_date) + 88881)
     return rng.randint(lo, hi)
 
 
 def garden_daily_total(target_date: date) -> int:
-    """How many commits garden.yml is responsible for today (≈70% of budget)."""
+    """70% of day budget handled by garden.yml's 5 cron triggers."""
     budget = _day_budget(target_date)
     if budget == 0:
         return 0
@@ -65,7 +71,7 @@ def garden_daily_total(target_date: date) -> int:
 
 
 def multi_repo_daily_total(target_date: date) -> int:
-    """How many commits multi_repo.yml is responsible for today (≈30% of budget)."""
+    """30% of day budget handled by multi_repo.yml across other repos."""
     budget = _day_budget(target_date)
     if budget == 0:
         return 0
@@ -73,7 +79,6 @@ def multi_repo_daily_total(target_date: date) -> int:
 
 
 def _trigger_share(target_date: date, run_number: int) -> int:
-    """Split garden_daily_total across garden.yml's 5 triggers."""
     total = garden_daily_total(target_date)
     if total == 0:
         return 0
@@ -104,7 +109,6 @@ def choose_plot(target_date: date = None, commit_index: int = 0) -> str:
 
 
 def timestamp_jitter(base_hour: int, target_date: date = None) -> datetime:
-    """Realistic timestamp with ±20 min jitter around the trigger hour."""
     if target_date is None:
         target_date = date.today()
     rng = random.Random(daily_seed(target_date) + base_hour * 997)
