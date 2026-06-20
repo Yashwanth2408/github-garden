@@ -102,7 +102,9 @@ def main():
         total = 0
         current = start
         while current <= end:
-            total += run_for_date(current, run_number=0, force=True, dry_run=dry_run)
+            # Simulate all 5 daily triggers so the commit count matches the target level
+            for rn in range(5):
+                total += run_for_date(current, run_number=rn, force=False, dry_run=dry_run)
             current += timedelta(days=1)
         print(f'backfill done: {total} commits from {start} to {end}')
     else:
