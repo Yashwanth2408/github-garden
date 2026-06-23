@@ -984,3 +984,22 @@ def fib_memo(n, _cache={}):
         return n
     _cache[n] = fib_memo(n - 1) + fib_memo(n - 2)
     return _cache[n]
+
+def fib(n):
+    """Nth Fibonacci number. O(n) time, O(1) space."""
+    if n <= 1:
+        return n
+    a, b = 0, 1
+    for _ in range(2, n + 1):
+        a, b = b, a + b
+    return b
+
+
+def fib_memo(n, _cache={}):
+    """Nth Fibonacci with memoization. O(n) time and space."""
+    if n in _cache:
+        return _cache[n]
+    if n <= 1:
+        return n
+    _cache[n] = fib_memo(n - 1) + fib_memo(n - 2)
+    return _cache[n]
