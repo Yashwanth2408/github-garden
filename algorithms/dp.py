@@ -1003,3 +1003,17 @@ def fib_memo(n, _cache={}):
         return n
     _cache[n] = fib_memo(n - 1) + fib_memo(n - 2)
     return _cache[n]
+
+import bisect
+
+
+def lis_length(arr):
+    """Longest Increasing Subsequence length. O(n log n) — patience sorting."""
+    tails = []
+    for num in arr:
+        pos = bisect.bisect_left(tails, num)
+        if pos == len(tails):
+            tails.append(num)
+        else:
+            tails[pos] = num
+    return len(tails)
